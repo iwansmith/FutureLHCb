@@ -110,6 +110,7 @@ def SaveHistogram_KMuNu( EvType, FileTree, resolution = 1.0, combinatorial = Fal
 		K    = K [1:-1]
 		Mu   = Mu[0:-2]
 		B = B[0:-2]
+		EvType = EvType+"_Combinatorial"
 	
 	B_SV_New = SmearVertex( B_SV, sigma_SV_LHCb * resolution )
 	B_PV_New = SmearVertex( B_PV, sigma_PV_LHCb * resolution )
@@ -127,14 +128,12 @@ def SaveHistogram_KMuNu( EvType, FileTree, resolution = 1.0, combinatorial = Fal
 		
 	PassCuts = np.all( Cuts, axis = 0)
 	
-	
-	print EvType, 1.0* np.sum(PassCuts) / K.P().shape[0]
-	
-	h_MCORR = ROOT.TH1F("MCORR_" + EvType, "", 100, 2500, 6000)
-	h_MM2   = ROOT.TH1F("MissingMass2_" + EvType, "", 100, -10e6, 20e6) 
-	h_Q21   = ROOT.TH1F("QSQ_SOL1_" + EvType, "", 100, 0, 25e6) 
-	h_Q22   = ROOT.TH1F("QSQ_SOL2_" + EvType, "", 100, 0, 25e6) 
-	h_Q20   = ROOT.TH1F("QSQ_SOLTrue_" + EvType, "", 100, 0, 25e6) 
+	HistTitle = SourceNames[EvType] 
+	h_MCORR = ROOT.TH1F("MCORR_" + EvType, HistTitle, 100, 2500, 6000)
+	h_MM2   = ROOT.TH1F("MissingMass2_" + EvType, HistTitle, 100, -10e6, 20e6) 
+	h_Q21   = ROOT.TH1F("QSQ_SOL1_" + EvType, HistTitle, 100, 0, 25e6) 
+	h_Q22   = ROOT.TH1F("QSQ_SOL2_" + EvType, HistTitle, 100, 0, 25e6) 
+	h_Q20   = ROOT.TH1F("QSQ_SOLTrue_" + EvType, HistTitle, 100, 0, 25e6) 
 
 	QSQ = (B - K).M2()
 
@@ -161,9 +160,7 @@ def SaveHistogram_KMuNu( EvType, FileTree, resolution = 1.0, combinatorial = Fal
 	h_Q20.GetXaxis().SetTitle("q^{2} True Solution")
 	
 	
-	f_Histogram = ROOT.TFile.Open("Source_Histograms_KMu_{0}_LHCb.root".format( resolution ), "UPDATE")
-	print f_Histogram
-
+	f_Histogram = ROOT.TFile.Open("../output/Source_Histograms_KMu_{0}_LHCb.root".format( resolution ), "UPDATE")
 	f_Histogram.cd()
 	SaveHistogram( f_Histogram, h_MCORR )
 	SaveHistogram( f_Histogram, h_MM2 )
@@ -171,11 +168,6 @@ def SaveHistogram_KMuNu( EvType, FileTree, resolution = 1.0, combinatorial = Fal
 	SaveHistogram( f_Histogram, h_Q22 )
 	SaveHistogram( f_Histogram, h_Q20 )
 	f_Histogram.Close()
-
-
-f_Histogram = ROOT.TFile.Open("Source_Histograms_DsMu_{0}_LHCb.root".format(0.5), "RECREATE")
-
-
 
 def SaveHistogram_DsMuNu( EvType, FileTree, resolution = 1.0, combinatorial = False ):
 
@@ -195,13 +187,27 @@ def SaveHistogram_DsMuNu( EvType, FileTree, resolution = 1.0, combinatorial = Fa
 	Pi = FourVector(InputData[Pi_PE])
 	Mu = FourVector(InputData[Mu_PE])
 	B = FourVector(InputData[B_PE])
+
+	B_SV = InputData[B_Origin].copy().view(( DataType, 3 ))
+	B_PV = InputData[B_End].copy().view(( DataType, 3 ))
+
+
+	if combinatorial:
+		B_SV = B_SV[1:-1]
+		B_PV = B_PV[0:-2]
+		K1   = K1[1:-1]
+		K2   = K2[1:-1]
+		Mu   = Mu[0:-2]
+		Pi   = Pi[1:-1]
+		B    = B [0:-2]
+		EvType = EvType+"_Combinatorial"
+
+
 	Ds = K1 + K2 + Pi
 
 	Y  = Ds + Mu
 	QSQ = ( B - Ds ).M2()
 
-	B_SV = InputData[B_Origin].copy().view(( DataType, 3 ))
-	B_PV = InputData[B_End].copy().view(( DataType, 3 ))
 
 	B_SV_New = SmearVertex( B_SV, sigma_SV_LHCb * resolution)
 	B_PV_New = SmearVertex( B_PV, sigma_PV_LHCb * resolution)
@@ -223,13 +229,13 @@ def SaveHistogram_DsMuNu( EvType, FileTree, resolution = 1.0, combinatorial = Fa
 	Cuts += ( -np.cos( B_Direction.Angle( Y.Vect() ) ) > 0.999,  )
 
 	PassCuts = np.all( Cuts, axis = 0)
-	print EvType, 1.0*np.sum(PassCuts)/ K1.P().shape[0]
 
-	h_MCORR = ROOT.TH1F("MCORR_" + EvType, "", 100, 2500, 6000)
-	h_MM2   = ROOT.TH1F("MissingMass2_" + EvType, "", 100, -10e6, 20e6) 
-	h_Q21   = ROOT.TH1F("QSQ_SOL1_" + EvType, "", 100, 0, 12e6) 
-	h_Q22   = ROOT.TH1F("QSQ_SOL2_" + EvType, "", 100, 0, 12e6) 
-	h_Q20   = ROOT.TH1F("QSQ_SOLTrue_" + EvType, "", 100, 0, 12e6) 
+	HistTitle = SourceNames[EvType] 
+	h_MCORR = ROOT.TH1F("MCORR_" + EvType, HistTitle, 100, 2500, 6000)
+	h_MM2   = ROOT.TH1F("MissingMass2_" + EvType, HistTitle, 100, -10e6, 20e6) 
+	h_Q21   = ROOT.TH1F("QSQ_SOL1_" + EvType, HistTitle, 100, 0, 12e6) 
+	h_Q22   = ROOT.TH1F("QSQ_SOL2_" + EvType, HistTitle, 100, 0, 12e6) 
+	h_Q20   = ROOT.TH1F("QSQ_SOLTrue_" + EvType, HistTitle, 100, 0, 12e6) 
 
 	Q20 = (B - Ds).M2()
 
@@ -255,7 +261,7 @@ def SaveHistogram_DsMuNu( EvType, FileTree, resolution = 1.0, combinatorial = Fa
 	h_Q20.GetXaxis().SetTitle("q^{2}~True Solution")
 	
 	
-	f_Histogram = ROOT.TFile.Open("Source_Histograms_DsMu_{0}_LHCb.root".format(resolution), "UPDATE")
+	f_Histogram = ROOT.TFile.Open("../output/Source_Histograms_DsMu_{0}_LHCb.root".format(resolution), "UPDATE")
 	f_Histogram.cd()
 	SaveHistogram( f_Histogram, h_MCORR )
 	SaveHistogram( f_Histogram, h_MM2 )
