@@ -1,5 +1,11 @@
+# Uncertainty on LHCb Primary and secondary vertices.
 import numpy as np
-import math
+
+sigma_PV_LHCb = np.array( [0.01, 0.01, 0.07])
+sigma_SV_LHCb = np.array( [0.02, 0.02, 0.31])
+
+
+
 
 # Dictionary of Keys for each NTuple/TTree with filename and Tree path
 
@@ -33,48 +39,46 @@ SourceNames["13774000_DsTau"]     = "B_{s} #rightarrow D_{s} #tau^{+} #nu"
 SourceNames["13774000_Dsstar0"]   = "B_{s} #rightarrow D_{s}*0 #mu^{+} #nu"
 SourceNames["13774000_Dsstar1"]   = "B_{s} #rightarrow D_{s}*1 #mu^{+} #nu"
 
+SourceNames["13774000_Tau"] = "B_{s} #rightarrow D_{s} #tau^{+} #nu X"
+SourceNames["13774000_Ds01"]   = "B_{s} #rightarrow D_{s}*01 #mu^{+} #nu"
+SourceNames["13774000_DsX"] = "B_{s} #rightarrow D_{s}^{(*)} #mu^{+} #nu X"
+SourceNames["Combinatorial"] = "Combinatorial"
 
 
+# Dictionary that merges the histograms
 
-# Removed Variables
-#DataTuple["22114001"] = ("/afs/cern.ch/work/i/ismith/NTuples/VubFromBplus/Backgrounds/GenLevel/DV22114001.root", "MCDecayTreeTuple/MCDecayTree")
-#DataTuple["23573002"] = ("/afs/cern.ch/work/i/ismith/NTuples/VubFromBplus/Backgrounds/GenLevel/DV23573002.root", "MCDecayTreeTuple/MCDecayTree")
-#DataTuple["13774011"] = ("/afs/cern.ch/work/i/ismith/NTuples/VubFromBplus/Backgrounds/GenLevel/DV13774011.root", "MCDecayTreeTuple/MCDecayTree")
-#DataTuple["13146004"] = ("/afs/cern.ch/work/i/ismith/NTuples/VubFromBplus/Backgrounds/GenLevel/DV13146004.root", "MCDecayTreeTuple/MCDecayTree")
-#DataTuple["12145052"] = ("/afs/cern.ch/work/i/ismith/NTuples/VubFromBplus/Backgrounds/GenLevel/DV12145052.root", "MCDecayTreeTuple/MCDecayTree")
-#DataTuple["13114001"] = ("/afs/cern.ch/work/i/ismith/NTuples/VubFromBplus/Backgrounds/GenLevel/DV13114001.root", "MCDecayTreeTuple/MCDecayTree")
-#DataTuple["13114006"] = ("/afs/cern.ch/work/i/ismith/NTuples/VubFromBplus/Backgrounds/GenLevel/DV13114006.root", "MCDecayTreeTuple/MCDecayTree")
-#DataTuple["11876001"] = ("/afs/cern.ch/work/i/ismith/NTuples/VubFromBplus/Backgrounds/GenLevel/DV11876001.root", "MCDecayTreeTuple/MCDecayTree")
+MergeDict_K = {}
+MergeDict_K["13774000_Tau"]  = ["13774000_DsTau", "13774000_DsstarTau"]
+MergeDict_K["13774000_Ds01"] = ["13774000_Dsstar0", "13774000_Dsstar1", "15574010"]
+MergeDict_K["13774000_DsX"]   = ["13774000_Ds", "13774000_Dsstar"]
+MergeDict_K["Combinatorial"] = ["13774000_Ds_Combinatorial", "13512010_Combinatorial"]
+MergeDict_K["12513010"] = ["12513010"]
+MergeDict_K["13512010"] = ["13512010"]
 
+MergeDict_Ds = {}
+MergeDict_Ds["13774000_Tau"]  = ["13774000_DsTau", "13774000_DsstarTau"]
+MergeDict_Ds["13774000_Ds01"] = ["13774000_Dsstar0", "13774000_Dsstar1"]
+MergeDict_Ds["13774000_Ds"]  = ["13774000_Ds"]
+MergeDict_Ds["13774000_Dsstar"]  = ["13774000_Dsstar"] 
+MergeDict_Ds["Combinatorial"]  = ["13774000_Ds_Combinatorial"]
 
-
-# Uncertainty on LHCb Primary and secondary vertices.
-
-sigma_PV_LHCb = np.array( [0.01, 0.01, 0.07])
-sigma_SV_LHCb = np.array( [0.02, 0.02, 0.31])
 
 
 Signal_Yields = {}
-Signal_Yields["13512010"] = 17000. # Signal
-Signal_Yields["13512010_Combinatorial"] = 30000. # Signal
-Signal_Yields["13774000_Dsstar"] = 40000.
-Signal_Yields["13774000_Ds"] = 20000.
-Signal_Yields["13774000_DsTau"] = 3000
-Signal_Yields["13774000_DsstarTau"] = 5000
-Signal_Yields["13774000_Dsstar1"] = 1000 
-Signal_Yields["13774000_Dsstar0"] = 1000
-Signal_Yields["12513010"] = 5000 
-Signal_Yields["15574010"] = 2000
+Signal_Yields["13774000_Tau"] = 10000. # Signal
+Signal_Yields["13774000_Ds01"] = 30000. # Signal
+Signal_Yields["13774000_DsX"] = 40000.
+Signal_Yields["Combinatorial"] = 20000.
+Signal_Yields["12513010"] = 5000
+Signal_Yields["13512010"] = 17000
 
 
 Control_Yields = {}
-Control_Yields["13774000_Ds"] = 1.97e5
-Control_Yields["13774000_Ds_Combinatorial"] = 1.97e5
-Control_Yields["13774000_Dsstar"] = 4.42e5
-Control_Yields["13774000_DsTau"] = 5e3
-Control_Yields["13774000_DsstarTau"] = 8e3 
-Control_Yields["13774000_Dsstar1"] = 2e4
-Control_Yields["13774000_Dsstar0"] = 5e4
+Control_Yields["13774000_Tau"] = 20000
+Control_Yields["13774000_Ds01"] = 40000
+Control_Yields["13774000_Ds"] = 200000
+Control_Yields["13774000_Dsstar"] = 400000
+Control_Yields["Combinatorial"] = 30000
 
 
 
