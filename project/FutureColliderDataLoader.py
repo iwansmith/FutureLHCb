@@ -87,6 +87,18 @@ def LoadData_DsMuNu(EvType, FileTree):
 
 def SaveHistogram_KMuNu( EvType, FileTree, resolution = 1.0, combinatorial = False ):
 	
+	isCombi = ""
+	if combinatorial:
+		isCombi = "_Combinatorial"
+	HistTitle = SourceNames[EvType + isCombi] 
+
+	h_MCORR = ROOT.TH1F("MCORR_" + EvType + isCombi, HistTitle, 100, 2500, 6000)
+	h_MM2   = ROOT.TH1F("MissingMass2_" + EvType + isCombi, HistTitle, 100, -10e6, 20e6) 
+	h_Q21   = ROOT.TH1F("QSQ_SOL1_" + EvType + isCombi, HistTitle, 100, 0, 25e6) 
+	h_Q22   = ROOT.TH1F("QSQ_SOL2_" + EvType + isCombi, HistTitle, 100, 0, 25e6) 
+	h_Q20   = ROOT.TH1F("QSQ_SOLTrue_" + EvType + isCombi, HistTitle, 100, 0, 25e6) 
+
+
 	InputData = None
 	try:
 		InputData,K_PE,Mu_PE,B_PE,B_Origin,B_End = LoadData_KMuNu(EvType, FileTree)
@@ -103,54 +115,50 @@ def SaveHistogram_KMuNu( EvType, FileTree, resolution = 1.0, combinatorial = Fal
 	Mu = FourVector(InputData[Mu_PE])
 	B = FourVector(InputData[B_PE])
 
-	
+	reps = 1
 	if combinatorial:
-		B_SV = B_SV[1:-1]
-		B_PV = B_PV[0:-2]
-		K    = K [1:-1]
-		Mu   = Mu[0:-2]
-		B = B[0:-2]
-		EvType = EvType+"_Combinatorial"
-	
-	B_SV_New = SmearVertex( B_SV, sigma_SV_LHCb * resolution )
-	B_PV_New = SmearVertex( B_PV, sigma_PV_LHCb * resolution )
+		reps = 10
 
+	for rep in range(reps):
+		if combinatorial:
+			Mu.roll()
+			B.roll()
+			B_PV = np.roll(B_PV, 1)
 
-	B_Direction = ThreeVector(B_SV_New - B_PV_New)
-	Y = K + Mu
+			EvType = EvType+"_Combinatorial"
 		
-	Cuts = ()  
-	Cuts += ( K.P() > 10000, )
-	Cuts += ( K.Pt() > 500, )
-	Cuts += ( Mu.P() > 6000., )
-	Cuts += ( Mu.Pt() > 1500., )
-	Cuts += ( -np.cos( B_Direction.Angle( Y.Vect() ) ) > 0.997,  )
+		B_SV_New = SmearVertex( B_SV, sigma_SV_LHCb * resolution )
+		B_PV_New = SmearVertex( B_PV, sigma_PV_LHCb * resolution )
+
+
+		B_Direction = ThreeVector(B_SV_New - B_PV_New)
+		Y = K + Mu
+			
+		Cuts = ()  
+		Cuts += ( K.P() > 10000, )
+		Cuts += ( K.Pt() > 500, )
+		Cuts += ( Mu.P() > 6000., )
+		Cuts += ( Mu.Pt() > 1500., )
+		Cuts += ( -np.cos( B_Direction.Angle( Y.Vect() ) ) > 0.997,  )
+			
+		PassCuts = np.all( Cuts, axis = 0)
 		
-	PassCuts = np.all( Cuts, axis = 0)
-	
-	HistTitle = SourceNames[EvType] 
-	h_MCORR = ROOT.TH1F("MCORR_" + EvType, HistTitle, 100, 2500, 6000)
-	h_MM2   = ROOT.TH1F("MissingMass2_" + EvType, HistTitle, 100, -10e6, 20e6) 
-	h_Q21   = ROOT.TH1F("QSQ_SOL1_" + EvType, HistTitle, 100, 0, 25e6) 
-	h_Q22   = ROOT.TH1F("QSQ_SOL2_" + EvType, HistTitle, 100, 0, 25e6) 
-	h_Q20   = ROOT.TH1F("QSQ_SOLTrue_" + EvType, HistTitle, 100, 0, 25e6) 
+		QSQ = (B - K).M2()
 
-	QSQ = (B - K).M2()
-
-	MCORR = GetCorrectedMass(Y[PassCuts], B_Direction[PassCuts])
-	MM2 = GetMissingMass2(K[PassCuts], Mu[PassCuts], B_Direction[PassCuts])
-	Q21, Q22 = GetQ2(Y[PassCuts], Mu[PassCuts], B_Direction[PassCuts])
-	
-	
-	nev = MM2.shape[0]
-	
-	
-	#for MC, MM in zip(MCORR, MM2):
-	h_MCORR.FillN( nev, MCORR,  np.ones(nev)) 
-	h_MM2  .FillN( nev, MM2,    np.ones(nev))
-	h_Q21  .FillN( nev, Q21,np.ones(nev))
-	h_Q22  .FillN( nev, Q22,np.ones(nev))
-	h_Q20  .FillN( nev, QSQ,np.ones(nev))
+		MCORR = GetCorrectedMass(Y[PassCuts], B_Direction[PassCuts])
+		MM2 = GetMissingMass2(K[PassCuts], Mu[PassCuts], B_Direction[PassCuts])
+		Q21, Q22 = GetQ2(Y[PassCuts], Mu[PassCuts], B_Direction[PassCuts])
+		
+		
+		nev = MM2.shape[0]
+		
+		
+		#for MC, MM in zip(MCORR, MM2):
+		h_MCORR.FillN( nev, MCORR,  np.ones(nev)) 
+		h_MM2  .FillN( nev, MM2,    np.ones(nev))
+		h_Q21  .FillN( nev, Q21,np.ones(nev))
+		h_Q22  .FillN( nev, Q22,np.ones(nev))
+		h_Q20  .FillN( nev, QSQ,np.ones(nev))
 	
 	
 	h_MCORR.GetXaxis().SetTitle("m_{corr}(B_{s})")
@@ -170,6 +178,17 @@ def SaveHistogram_KMuNu( EvType, FileTree, resolution = 1.0, combinatorial = Fal
 	f_Histogram.Close()
 
 def SaveHistogram_DsMuNu( EvType, FileTree, resolution = 1.0, combinatorial = False ):
+
+	isCombi = ""
+	if combinatorial:
+		isCombi = "_Combinatorial"
+	HistTitle = SourceNames[EvType + isCombi] 
+
+	h_MCORR = ROOT.TH1F("MCORR_" + EvType + isCombi, HistTitle, 100, 2500, 6000)
+	h_MM2   = ROOT.TH1F("MissingMass2_" + EvType + isCombi, HistTitle, 100, -10e6, 20e6) 
+	h_Q21   = ROOT.TH1F("QSQ_SOL1_" + EvType + isCombi, HistTitle, 100, 0, 12e6) 
+	h_Q22   = ROOT.TH1F("QSQ_SOL2_" + EvType + isCombi, HistTitle, 100, 0, 12e6) 
+	h_Q20   = ROOT.TH1F("QSQ_SOLTrue_" + EvType + isCombi, HistTitle, 100, 0, 12e6) 
 
 	InputData = None
 		
@@ -191,67 +210,65 @@ def SaveHistogram_DsMuNu( EvType, FileTree, resolution = 1.0, combinatorial = Fa
 	B_SV = InputData[B_Origin].copy().view(( DataType, 3 ))
 	B_PV = InputData[B_End].copy().view(( DataType, 3 ))
 
-
+	reps = 1
 	if combinatorial:
-		B_SV = B_SV[1:-1]
-		B_PV = B_PV[0:-2]
-		K1   = K1[1:-1]
-		K2   = K2[1:-1]
-		Mu   = Mu[0:-2]
-		Pi   = Pi[1:-1]
-		B    = B [0:-2]
-		EvType = EvType+"_Combinatorial"
+		reps = 10
+
+	for rep in range(reps):
+		
+		if combinatorial:
+			
+			B_SV = np.roll(B_SV, 1)
+			K1.roll()
+			K2.roll()
+			Pi.roll()
+			
+			EvType = EvType+"_Combinatorial"
+		
+
+		Ds = K1 + K2 + Pi
+
+		Y  = Ds + Mu
+		QSQ = ( B - Ds ).M2()
 
 
-	Ds = K1 + K2 + Pi
+		B_SV_New = SmearVertex( B_SV, sigma_SV_LHCb * resolution)
+		B_PV_New = SmearVertex( B_PV, sigma_PV_LHCb * resolution)
+		B_Direction = ThreeVector(B_SV_New - B_PV_New)
 
-	Y  = Ds + Mu
-	QSQ = ( B - Ds ).M2()
+		Cuts = ()  
 
+		Cuts += ( K1.P() > 10000., )
+		Cuts += ( K1.Pt() > 500, )
+		Cuts += ( K2.P() > 10000, )
+		Cuts += ( K2.Pt() > 500, )
+		Cuts += ( Pi.P() > 2000, )
+		Cuts += ( Pi.Pt() > 250, )
+		Cuts += ( Mu.P() > 6000., )
+		Cuts += ( Mu.Pt() > 1500., )
+		Cuts += ( np.abs( Ds.M() - 1968 ) < 80, )
+		Cuts += ( Y.M() > 2200, )
+		Cuts += ( Y.M() < 8000, )
+		Cuts += ( -np.cos( B_Direction.Angle( Y.Vect() ) ) > 0.999,  )
 
-	B_SV_New = SmearVertex( B_SV, sigma_SV_LHCb * resolution)
-	B_PV_New = SmearVertex( B_PV, sigma_PV_LHCb * resolution)
-	B_Direction = ThreeVector(B_SV_New - B_PV_New)
-
-	Cuts = ()  
-
-	Cuts += ( K1.P() > 10000., )
-	Cuts += ( K1.Pt() > 500, )
-	Cuts += ( K2.P() > 10000, )
-	Cuts += ( K2.Pt() > 500, )
-	Cuts += ( Pi.P() > 2000, )
-	Cuts += ( Pi.Pt() > 250, )
-	Cuts += ( Mu.P() > 6000., )
-	Cuts += ( Mu.Pt() > 1500., )
-	Cuts += ( np.abs( Ds.M() - 1968 ) < 80, )
-	Cuts += ( Y.M() > 2200, )
-	Cuts += ( Y.M() < 8000, )
-	Cuts += ( -np.cos( B_Direction.Angle( Y.Vect() ) ) > 0.999,  )
-
-	PassCuts = np.all( Cuts, axis = 0)
-
-	HistTitle = SourceNames[EvType] 
-	h_MCORR = ROOT.TH1F("MCORR_" + EvType, HistTitle, 100, 2500, 6000)
-	h_MM2   = ROOT.TH1F("MissingMass2_" + EvType, HistTitle, 100, -10e6, 20e6) 
-	h_Q21   = ROOT.TH1F("QSQ_SOL1_" + EvType, HistTitle, 100, 0, 12e6) 
-	h_Q22   = ROOT.TH1F("QSQ_SOL2_" + EvType, HistTitle, 100, 0, 12e6) 
-	h_Q20   = ROOT.TH1F("QSQ_SOLTrue_" + EvType, HistTitle, 100, 0, 12e6) 
-
-	Q20 = (B - Ds).M2()
-
-	MCORR = GetCorrectedMass(Y[PassCuts], B_Direction[PassCuts])
-	MM2 = GetMissingMass2(Ds[PassCuts], Mu[PassCuts], B_Direction[PassCuts])
-	Q21, Q22 = GetQ2(Y[PassCuts], Mu[PassCuts], B_Direction[PassCuts])
+		PassCuts = np.all( Cuts, axis = 0)
 
 
-	nev = MM2.shape[0]
+		Q20 = (B - Ds).M2()
 
-	#for MC, MM in zip(MCORR, MM2):
-	h_MCORR.FillN( nev, MCORR,  np.ones(nev)) 
-	h_MM2  .FillN( nev, MM2,    np.ones(nev))
-	h_Q21  .FillN( nev, Q21,np.ones(nev))
-	h_Q22  .FillN( nev, Q22,np.ones(nev))
-	h_Q20  .FillN( nev, QSQ,np.ones(nev))
+		MCORR = GetCorrectedMass(Y[PassCuts], B_Direction[PassCuts])
+		MM2 = GetMissingMass2(Ds[PassCuts], Mu[PassCuts], B_Direction[PassCuts])
+		Q21, Q22 = GetQ2(Y[PassCuts], Mu[PassCuts], B_Direction[PassCuts])
+
+
+		nev = MM2.shape[0]
+
+		#for MC, MM in zip(MCORR, MM2):
+		h_MCORR.FillN( nev, MCORR,  np.ones(nev)) 
+		h_MM2  .FillN( nev, MM2,    np.ones(nev))
+		h_Q21  .FillN( nev, Q21,np.ones(nev))
+		h_Q22  .FillN( nev, Q22,np.ones(nev))
+		h_Q20  .FillN( nev, QSQ,np.ones(nev))
 
 
 	h_MCORR.GetXaxis().SetTitle("m_{corr}(B_{s})")

@@ -12,7 +12,7 @@ from FutureColliderVariables import *
 
 import numpy as np
 import ROOT
-
+"""
 # Loop over every resolution .
 for resolution in np.linspace(0.0, 1.0, 11):
 
@@ -34,8 +34,7 @@ for resolution in np.linspace(0.0, 1.0, 11):
 	SaveHistogram_KMuNu ("13774000_Ds", DataTuple["13774000_Ds"], resolution = resolution, combinatorial = True )
 	SaveHistogram_DsMuNu("13774000_Ds", DataTuple["13774000_Ds"], resolution = resolution, combinatorial = True )
 	
-
-
+"""
 
 # Now Merge similar shapes
 
@@ -47,6 +46,7 @@ for resolution in np.linspace(0.0, 1.0, 11):
 	def MergeHistograms( Dictionary ):
 		for HistName, Components in Dictionary.iteritems():
 			for Type in HistTypes:
+				print Type + "_" + Components[0]
 				Merged = f_Histogram.Get(Type + "_" + Components[0] ).Clone()
 				Merged.SetDirectory(0)
 				Merged.Reset()
@@ -57,6 +57,9 @@ for resolution in np.linspace(0.0, 1.0, 11):
 					#print Type + "_" + Hist 
 					Merged += f_Histogram.Get(Type + "_" + Hist ).Clone()
 
+				Merged.Scale( MonteCarloYields[ HistName ] /  Merged.Integral() )
+				Merged.Sumw2(False)
+				Merged.Sumw2()
 				SaveHistogram(f_Histogram_Out, Merged )
 
 	f_Histogram     = ROOT.TFile.Open("../output/Source_Histograms_DsMu_{0}_LHCb.root".format(resolution), "READ")

@@ -26,7 +26,7 @@ class FutureFitter:
 		self.TemplateList = ROOT.TObjArray( self.nPar )
 		for Hist in self.TemplateHist:
 			Hist.SetDirectory(0)
-			Hist.Scale( 0.5 * self.DataHist.Integral() / Hist.Integral() )
+			#Hist.Scale( 0.5 * self.DataHist.Integral() / Hist.Integral() )
 			self.TemplateList.Add( Hist )
 		InTemplateFile.Close()
 		
@@ -50,11 +50,20 @@ class FutureFitter:
 			Total_Histogram += self.TemplateHist[par].Integral() * value
 
 		self.ScaledTemplates = []
+		self.OutHists = []
+
 		for par in range(self.nPar):
 			self.fitter.GetResult(par, value, error)
 			Hist = self.TemplateHist[par].Clone()
-			Hist.Scale( value * Total_Data / Total_Histogram)
+			Hist.Scale( value * Total_Data / Hist.Integral())
 			self.ScaledTemplates += [ Hist ]
+
+
+			OutHist = self.fitter.GetMCPrediction(par).Clone()
+			OutHist.Scale(value * self.DataHist.Integral() / OutHist.Integral() )
+			OutHist.SetLineColor(par+1)
+			OutHist.Sumw2()
+			self.OutHists += [OutHist]
 
 	def Plot( self, canvas):
 
@@ -78,7 +87,6 @@ class FutureFitter:
 		self.legend = ROOT.TLegend(0.0, 0.7, 0.3, 1.0, "", "NDC")
 		self.legend.SetBorderSize(0)
 
-		self.OutHists = []
 		for par in range( self.nPar ):
 			self.fitter.GetResult(par, value, error)
 
@@ -86,15 +94,12 @@ class FutureFitter:
 			Histogram.Sumw2(False)
 			Histogram.SetLineColor(par+1)
 
-			OutHist = self.fitter.GetMCPrediction(par).Clone()
-			OutHist.Scale(value * self.DataHist.Integral() / OutHist.Integral() )
-			OutHist.SetLineColor(par+1)
-			OutHist.Sumw2()
-			OutHist.Draw("SAME")
-			self.OutHists += [OutHist]
 			HistName = Histogram.GetName().replace("MCORR_", "")
 			resultTable.add_row(( HistName,  int(value[0]*1000)/1000., int(10000*error[0]/value[0])/100. ))
 			InputHists += [ Histogram ]
+			
+			OutHist = self.OutHists[par]
+			OutHist.Draw("SAME")
 
 			Histogram.Draw("SAME")
 

@@ -42,16 +42,18 @@ SourceNames["13774000_Dsstar1"]   = "B_{s} #rightarrow D_{s}*1 #mu^{+} #nu"
 SourceNames["13774000_Tau"] = "B_{s} #rightarrow D_{s} #tau^{+} #nu X"
 SourceNames["13774000_Ds01"]   = "B_{s} #rightarrow D_{s}*01 #mu^{+} #nu"
 SourceNames["13774000_DsX"] = "B_{s} #rightarrow D_{s}^{(*)} #mu^{+} #nu X"
-SourceNames["Combinatorial"] = "Combinatorial"
+SourceNames["Combinatorial_K"] = "Combinatorial"
+SourceNames["Combinatorial_Ds"] = "Combinatorial"
 
+SourceNames["13774000_DsX_Tau"] = "B_{s} #rightarrow D_{s}^{(*)} #mu^{+}(#tau^+) #nu X"
 
 # Dictionary that merges the histograms
 
 MergeDict_K = {}
-MergeDict_K["13774000_Tau"]  = ["13774000_DsTau", "13774000_DsstarTau"]
+#MergeDict_K["13774000_Tau"]  = ["13774000_DsTau", "13774000_DsstarTau"]
 MergeDict_K["13774000_Ds01"] = ["13774000_Dsstar0", "13774000_Dsstar1", "15574010"]
-MergeDict_K["13774000_DsX"]   = ["13774000_Ds", "13774000_Dsstar"]
-MergeDict_K["Combinatorial"] = ["13774000_Ds_Combinatorial", "13512010_Combinatorial"]
+MergeDict_K["13774000_DsX_Tau"]   = ["13774000_Ds", "13774000_Dsstar","13774000_DsTau", "13774000_DsstarTau"]
+MergeDict_K["Combinatorial_K"] = ["13774000_Ds_Combinatorial", "13512010_Combinatorial"]
 MergeDict_K["12513010"] = ["12513010"]
 MergeDict_K["13512010"] = ["13512010"]
 
@@ -60,17 +62,17 @@ MergeDict_Ds["13774000_Tau"]  = ["13774000_DsTau", "13774000_DsstarTau"]
 MergeDict_Ds["13774000_Ds01"] = ["13774000_Dsstar0", "13774000_Dsstar1"]
 MergeDict_Ds["13774000_Ds"]  = ["13774000_Ds"]
 MergeDict_Ds["13774000_Dsstar"]  = ["13774000_Dsstar"] 
-MergeDict_Ds["Combinatorial"]  = ["13774000_Ds_Combinatorial"]
+MergeDict_Ds["Combinatorial_Ds"]  = ["13774000_Ds_Combinatorial"]
 
 
 
 Signal_Yields = {}
-Signal_Yields["13774000_Tau"] = 10000. # Signal
-Signal_Yields["13774000_Ds01"] = 30000. # Signal
-Signal_Yields["13774000_DsX"] = 40000.
-Signal_Yields["Combinatorial"] = 20000.
-Signal_Yields["12513010"] = 5000
-Signal_Yields["13512010"] = 17000
+#Signal_Yields["13774000_Tau"] = 10000. # Signal
+Signal_Yields["13774000_Ds01"] = 15000. # Signal
+Signal_Yields["13774000_DsX_Tau"] = 70000.
+Signal_Yields["Combinatorial_K"] = 10000.
+Signal_Yields["12513010"] = 10000
+Signal_Yields["13512010"] = 20000
 
 
 Control_Yields = {}
@@ -78,8 +80,20 @@ Control_Yields["13774000_Tau"] = 20000
 Control_Yields["13774000_Ds01"] = 40000
 Control_Yields["13774000_Ds"] = 200000
 Control_Yields["13774000_Dsstar"] = 400000
-Control_Yields["Combinatorial"] = 30000
+Control_Yields["Combinatorial_Ds"] = 30000
 
+
+MonteCarloYields = {}
+MonteCarloYields["Combinatorial_K"] = 20000.
+MonteCarloYields["12513010"] = 5000.
+MonteCarloYields["13512010"] = 17000.
+MonteCarloYields["13774000_DsX_Tau"] = 80000.
+
+MonteCarloYields["Combinatorial_Ds"] = 20000.
+MonteCarloYields["13774000_Ds"] = 20000.
+MonteCarloYields["13774000_Dsstar"] = 40000.
+MonteCarloYields["13774000_Tau"] = 5000. # Signal
+MonteCarloYields["13774000_Ds01"] = 15000. # Signal
 
 
 
