@@ -30,19 +30,18 @@ FracErr["Ds"] = []
 ResultTables = {}
 ResultTables["K"]  = PrettyTable()
 ResultTables["Ds"] = PrettyTable()
-ResultTables["K"]. field_names = ["Vertex Error / LHCb", "Signal Yield", "Error [%]"]
-ResultTables["Ds"].field_names = ["Vertex Error / LHCb", "Signal Yield", "Error [%]"]
+ResultTables["K"]. field_names = ["Vertex Error / LHCb", "Signal Fraction", "Error [%]"]
+ResultTables["Ds"].field_names = ["Vertex Error / LHCb", "Signal Fraction", "Error [%]"]
 
 
 file_plot = ROOT.TFile.Open("../output/FitterOutput.root", "RECREATE")
 
 
 for Mode in ["K", "Ds"]:
-	for resolution in np.linspace(0.2, 1.0, 9):
+	for resolution in np.linspace(0.0, 1.0, 11):
 
-		Fitter = FutureFitter("../output/Data_Histograms_{0}_LHCb.root".format(resolution), "MCORR_Data_{0}MuNu".format(Mode),  "../output/Source_Histograms_{0}Mu_0.3_LHCb_Merged.root".format(Mode, resolution))
-		Fitter.Fit()
-
+		Fitter = FutureFitter("../output/Data_Histograms_{0}_LHCb.root".format(resolution), "MCORR_Data_{0}MuNu".format(Mode),  "../output/Source_Histograms_{0}Mu_{1}_LHCb_Merged.root".format(Mode, resolution))
+		status = Fitter.Fit()
 
 		FitYields = Fitter.GetYield()
 
@@ -61,7 +60,7 @@ for Mode in ["K", "Ds"]:
 		Errors[Mode] += [Error]
 		FracErr[Mode] += [100 * Error/Yield ]
 
-		canvas = ROOT.TCanvas("c_Fit_{mode}_{resolution}".format(mode = Mode, resolution = resolution), "canvas", 1600, 1600)
+		canvas = ROOT.TCanvas("c_Fit_{mode}_{resolution}".format(mode = Mode, resolution = resolution), "canvas", 900, 900)
 
 		Fitter.Plot(canvas)
 
@@ -75,8 +74,8 @@ for Mode in ["K", "Ds"]:
 
 Graphs = {}
 
-Graphs["K"]  = ROOT.TGraph(9, np.linspace(0.2, 1.0, 9),  np.asarray( FracErr["K"] [ :]) )
-Graphs["Ds"] = ROOT.TGraph(8, np.linspace(0.3, 1.0, 8),  np.asarray( FracErr["Ds"][1:]) )
+Graphs["K"]  = ROOT.TGraph(11, np.linspace(0.0, 1.0, 11),  np.asarray( FracErr["K"] ) )
+Graphs["Ds"] = ROOT.TGraph(11, np.linspace(0.0, 1.0, 11),  np.asarray( FracErr["Ds"]) )
 
 
 for key, graph in Graphs.iteritems():
@@ -84,6 +83,7 @@ for key, graph in Graphs.iteritems():
 	graph.SetName("Error_Budget_{Mode}".format(Mode=key))
 	graph.GetXaxis().SetTitle("Vertex precision / LHCb Vertex precision")
 	graph.GetYaxis().SetTitle("Signal Yield Uncertainty [%]")
+	graph.SetMaximum(7.0)
 	graph.Write()
 
 

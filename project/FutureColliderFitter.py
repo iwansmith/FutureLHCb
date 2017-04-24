@@ -38,8 +38,7 @@ class FutureFitter:
 
 	def Fit( self ):
 
-		self.fitter.Fit()
-
+		status = int(self.fitter.Fit())
 		Total_Data = self.DataHist.Integral()
 		Total_Histogram = 0
 
@@ -64,6 +63,9 @@ class FutureFitter:
 			OutHist.SetLineColor(par+1)
 			OutHist.Sumw2()
 			self.OutHists += [OutHist]
+
+		#self.status = status
+		return status
 
 	def Plot( self, canvas):
 
