@@ -128,12 +128,13 @@ def GetMissingMass2(K, Mu, B_Direction):
 
     Y = K + Mu
 
-    B_PZ = np.multiply( np.divide( 5301, Y.M() ), Y.PZ() )
+    B_PZ = np.multiply( np.divide( 5366., Y.M() ), Y.PZ() )
     B_P = B_Direction / B_Direction.PZ
     B_P = B_P * B_PZ
     B = FourVector()
-    B.SetXYZM( B_P, 5301)
+    B.SetXYZM( B_P, 5366.)
 
+    print B
     return (B - K - Mu).M2()
 
 def GetQ2(Y, Mu, B_Direction ):
