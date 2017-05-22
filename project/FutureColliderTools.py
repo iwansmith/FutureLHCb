@@ -134,7 +134,7 @@ def GetMissingMass2(K, Mu, B_Direction):
     B = FourVector()
     B.SetXYZM( B_P, 5366.)
 
-    print B
+    #print B
     return (B - K - Mu).M2()
 
 def GetQ2(Y, Mu, B_Direction ):

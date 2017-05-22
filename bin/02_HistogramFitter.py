@@ -40,7 +40,7 @@ file_plot = ROOT.TFile.Open("../output/FitterOutput.root", "RECREATE")
 for Mode in ["K", "Ds"]:
 	for resolution in np.linspace(0.0, 1.0, 11):
 
-		Fitter = FutureFitter("../output/Data_Histograms_{0}_LHCb.root".format(resolution), "MCORR_Data_{0}MuNu".format(Mode),  "../output/Source_Histograms_{0}Mu_{1}_LHCb_Merged.root".format(Mode, resolution))
+		Fitter = FutureFitter("../output/Data_Histograms_{0}_LHCb.root".format(resolution), "MCORR_Data_{0}MuNu".format(Mode),  "../output/Source_Histograms_{0}Mu_{1}_LHCb_Merged.root".format(Mode, resolution), Mode == "K")
 		status = Fitter.Fit()
 
 		FitYields = Fitter.GetYield()
@@ -83,7 +83,7 @@ for key, graph in Graphs.iteritems():
 	graph.SetName("Error_Budget_{Mode}".format(Mode=key))
 	graph.GetXaxis().SetTitle("Vertex precision / LHCb Vertex precision")
 	graph.GetYaxis().SetTitle("Signal Yield Uncertainty [%]")
-	graph.SetMaximum(7.0)
+	graph.SetMaximum(10.0)
 	graph.Write()
 
 

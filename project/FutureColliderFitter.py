@@ -8,7 +8,7 @@ class FutureFitter:
 
 
 
-	def __init__(self, DataFile, DataHistogram, TemplateFile):
+	def __init__(self, DataFile, DataHistogram, TemplateFile, signal = True):
 
 		InDataFile = ROOT.TFile.Open(DataFile, "READ")
 		self.DataHist = InDataFile.Get( DataHistogram ).Clone()
@@ -23,14 +23,29 @@ class FutureFitter:
 
 		self.nPar = len(self.TemplateHist)
 
+		FitRanges = []
+
 		self.TemplateList = ROOT.TObjArray( self.nPar )
 		for Hist in self.TemplateHist:
 			Hist.SetDirectory(0)
 			#Hist.Scale( 0.5 * self.DataHist.Integral() / Hist.Integral() )
 			self.TemplateList.Add( Hist )
+
+			key = Hist.GetName().replace("MCORR_", "")
+			if (signal):
+				FitRanges += [ Signal_FitRanges[ key ] ]
+			else:
+				FitRanges += [ Control_FitRanges[ key ] ]
+
+
+
 		InTemplateFile.Close()
 		
 		self.fitter = ROOT.TFractionFitter(self.DataHist, self.TemplateList)
+
+		for it, Range in enumerate( FitRanges ):
+			self.fitter.Constrain(it, Range[0], Range[1])
+
 
 		for par in range(self.nPar):
 			self.fitter.Constrain(par, 0., 10)

@@ -85,7 +85,7 @@ def LoadData_DsMuNu(EvType, FileTree):
 	return InputData,K1_PE,K2_PE,Pi_PE,Mu_PE,B_PE,B_Origin,B_End
 
 
-def SaveHistogram_KMuNu( EvType, FileTree, resolution = 1.0, combinatorial = False ):
+def SaveHistogram_KMuNu( EvType, FileTree, Sigma_PV, Sigma_SV, combinatorial = False, ID = "" ):
 	
 	isCombi = ""
 	if combinatorial:
@@ -127,8 +127,8 @@ def SaveHistogram_KMuNu( EvType, FileTree, resolution = 1.0, combinatorial = Fal
 
 			EvType = EvType+"_Combinatorial"
 		
-		B_SV_New = SmearVertex( B_SV, sigma_SV_LHCb * resolution )
-		B_PV_New = SmearVertex( B_PV, sigma_PV_LHCb * resolution )
+		B_SV_New = SmearVertex( B_SV, Sigma_SV )
+		B_PV_New = SmearVertex( B_PV, Sigma_PV )
 
 
 		B_Direction = ThreeVector(B_SV_New - B_PV_New)
@@ -168,7 +168,7 @@ def SaveHistogram_KMuNu( EvType, FileTree, resolution = 1.0, combinatorial = Fal
 	h_Q20.GetXaxis().SetTitle("q^{2} True Solution")
 	
 	
-	f_Histogram = ROOT.TFile.Open("../output/Source_Histograms_KMu_{0}_LHCb.root".format( resolution ), "UPDATE")
+	f_Histogram = ROOT.TFile.Open("../output/Source_Histograms_KMu_{0}_LHCb.root".format( ID ), "UPDATE")
 	f_Histogram.cd()
 	SaveHistogram( f_Histogram, h_MCORR )
 	SaveHistogram( f_Histogram, h_MM2 )
@@ -177,14 +177,14 @@ def SaveHistogram_KMuNu( EvType, FileTree, resolution = 1.0, combinatorial = Fal
 	SaveHistogram( f_Histogram, h_Q20 )
 	f_Histogram.Close()
 
-def SaveHistogram_DsMuNu( EvType, FileTree, resolution = 1.0, combinatorial = False ):
+def SaveHistogram_DsMuNu( EvType, FileTree, Sigma_PV, Sigma_SV, combinatorial = False, ID = "" ):
 
 	isCombi = ""
 	if combinatorial:
 		isCombi = "_Combinatorial"
 	HistTitle = SourceNames[EvType + isCombi] 
 
-	h_MCORR = ROOT.TH1F("MCORR_" + EvType + isCombi, HistTitle, 100, 2500, 6000)
+	h_MCORR = ROOT.TH1F("MCORR_" + EvType + isCombi, HistTitle, 100, 3000, 6500)
 	h_MM2   = ROOT.TH1F("MissingMass2_" + EvType + isCombi, HistTitle, 100, -10e6, 20e6) 
 	h_Q21   = ROOT.TH1F("QSQ_SOL1_" + EvType + isCombi, HistTitle, 100, 0, 12e6) 
 	h_Q22   = ROOT.TH1F("QSQ_SOL2_" + EvType + isCombi, HistTitle, 100, 0, 12e6) 
@@ -232,8 +232,8 @@ def SaveHistogram_DsMuNu( EvType, FileTree, resolution = 1.0, combinatorial = Fa
 		QSQ = ( B - Ds ).M2()
 
 
-		B_SV_New = SmearVertex( B_SV, sigma_SV_LHCb * resolution)
-		B_PV_New = SmearVertex( B_PV, sigma_PV_LHCb * resolution)
+		B_SV_New = SmearVertex( B_SV, Sigma_SV)
+		B_PV_New = SmearVertex( B_PV, Sigma_PV)
 		B_Direction = ThreeVector(B_SV_New - B_PV_New)
 
 		Cuts = ()  
@@ -278,7 +278,7 @@ def SaveHistogram_DsMuNu( EvType, FileTree, resolution = 1.0, combinatorial = Fa
 	h_Q20.GetXaxis().SetTitle("q^{2}~True Solution")
 	
 	
-	f_Histogram = ROOT.TFile.Open("../output/Source_Histograms_DsMu_{0}_LHCb.root".format(resolution), "UPDATE")
+	f_Histogram = ROOT.TFile.Open("../output/Source_Histograms_DsMu_{0}_LHCb.root".format(ID), "UPDATE")
 	f_Histogram.cd()
 	SaveHistogram( f_Histogram, h_MCORR )
 	SaveHistogram( f_Histogram, h_MM2 )
